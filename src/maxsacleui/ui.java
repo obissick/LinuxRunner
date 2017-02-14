@@ -27,6 +27,7 @@ public class ui extends javax.swing.JPanel {
     private String hostString;
     private String user;
     private String passwordString;
+    private String command;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -46,6 +47,8 @@ public class ui extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         result = new javax.swing.JTextArea();
         runButton = new javax.swing.JButton();
+        comField = new javax.swing.JTextField();
+        comLabel = new javax.swing.JLabel();
 
         host.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
@@ -88,6 +91,14 @@ public class ui extends javax.swing.JPanel {
             }
         });
 
+        comField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                comFieldFocusLost(evt);
+            }
+        });
+
+        comLabel.setText("Command:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -98,8 +109,7 @@ public class ui extends javax.swing.JPanel {
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addGap(33, 33, 33)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(runButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(hostLabel)
                         .addGap(3, 3, 3)
@@ -112,7 +122,13 @@ public class ui extends javax.swing.JPanel {
                         .addComponent(passwordLabel)
                         .addGap(2, 2, 2)
                         .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(10, 10, 10)))
+                        .addGap(10, 10, 10))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(comLabel)
+                        .addGap(4, 4, 4)
+                        .addComponent(comField, javax.swing.GroupLayout.PREFERRED_SIZE, 339, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(runButton)))
                 .addContainerGap(49, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -127,7 +143,10 @@ public class ui extends javax.swing.JPanel {
                     .addComponent(passwordLabel)
                     .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(26, 26, 26)
-                .addComponent(runButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(runButton)
+                    .addComponent(comField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(comLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
                 .addContainerGap())
@@ -156,14 +175,16 @@ public class ui extends javax.swing.JPanel {
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
         // TODO add your handling code here:
         Thread thread = new Thread(
-                new Runnable(){
-                    @Override
-                    public void run(){
-                        runCom(hostString,user,passwordString,"ls -ltr");
-                        };
-                });
+                () -> {
+                    runCom(hostString,user,passwordString,command);
+        });
         thread.start();
     }//GEN-LAST:event_runButtonActionPerformed
+
+    private void comFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_comFieldFocusLost
+        // TODO add your handling code here:
+        command = comField.getText();
+    }//GEN-LAST:event_comFieldFocusLost
 
     private void runCom(String host, String user, String password, String command1) {
         try{
@@ -175,7 +196,7 @@ public class ui extends javax.swing.JPanel {
 	    	session.setPassword(password);
 	    	session.setConfig(config);
 	    	session.connect();
-	    	System.out.println("Connected");
+	    	result.append("Connected"+"\n");
 	    	
 	    	Channel channel=session.openChannel("exec");
 	        ((ChannelExec)channel).setCommand(command1);
@@ -199,14 +220,16 @@ public class ui extends javax.swing.JPanel {
 	        }
 	        channel.disconnect();
 	        session.disconnect();
-	        result.append("DONE");
+	        //result.append("DONE");
 	    }catch(Exception e){
-	    	e.printStackTrace();
+	    	result.append(e.getMessage());
 	    }
 
 	}
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField comField;
+    private javax.swing.JLabel comLabel;
     private javax.swing.JTextField host;
     private javax.swing.JLabel hostLabel;
     private javax.swing.JScrollPane jScrollPane1;
