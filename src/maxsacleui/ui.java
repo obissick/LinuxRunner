@@ -23,6 +23,10 @@ public class ui extends javax.swing.JPanel {
     public ui() {
         initComponents();
     }
+    
+    private String hostString;
+    private String user;
+    private String passwordString;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -38,11 +42,16 @@ public class ui extends javax.swing.JPanel {
         userLabel = new javax.swing.JLabel();
         userName = new javax.swing.JTextField();
         passwordLabel = new javax.swing.JLabel();
-        password = new javax.swing.JTextField();
+        password = new javax.swing.JPasswordField();
         jScrollPane1 = new javax.swing.JScrollPane();
         result = new javax.swing.JTextArea();
-        jButton1 = new javax.swing.JButton();
+        runButton = new javax.swing.JButton();
 
+        host.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                hostFocusLost(evt);
+            }
+        });
         host.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 hostActionPerformed(evt);
@@ -53,14 +62,31 @@ public class ui extends javax.swing.JPanel {
 
         userLabel.setText("Username:");
 
+        userName.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                userNameFocusLost(evt);
+            }
+        });
+
         passwordLabel.setText("Password:");
+
+        password.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                passwordFocusLost(evt);
+            }
+        });
 
         result.setEditable(false);
         result.setColumns(20);
         result.setRows(5);
         jScrollPane1.setViewportView(result);
 
-        jButton1.setText("Run");
+        runButton.setText("Run");
+        runButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                runButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -73,7 +99,7 @@ public class ui extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGap(33, 33, 33)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButton1)
+                    .addComponent(runButton)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(hostLabel)
                         .addGap(3, 3, 3)
@@ -101,7 +127,7 @@ public class ui extends javax.swing.JPanel {
                     .addComponent(passwordLabel)
                     .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(26, 26, 26)
-                .addComponent(jButton1)
+                .addComponent(runButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
                 .addContainerGap())
@@ -112,7 +138,34 @@ public class ui extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_hostActionPerformed
 
-    private void run(String host, String user, String password, String command1) {
+    private void hostFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_hostFocusLost
+        // TODO add your handling code here:
+        hostString = host.getText();
+    }//GEN-LAST:event_hostFocusLost
+
+    private void userNameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_userNameFocusLost
+        // TODO add your handling code here:
+        user = userName.getText();
+    }//GEN-LAST:event_userNameFocusLost
+
+    private void passwordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_passwordFocusLost
+        // TODO add your handling code here:
+        passwordString = password.getText();
+    }//GEN-LAST:event_passwordFocusLost
+
+    private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
+        // TODO add your handling code here:
+        Thread thread = new Thread(
+                new Runnable(){
+                    @Override
+                    public void run(){
+                        runCom(hostString,user,passwordString,"ls -ltr");
+                        };
+                });
+        thread.start();
+    }//GEN-LAST:event_runButtonActionPerformed
+
+    private void runCom(String host, String user, String password, String command1) {
         try{
 	    	
 	    	java.util.Properties config = new java.util.Properties(); 
@@ -136,17 +189,17 @@ public class ui extends javax.swing.JPanel {
 	          while(in.available()>0){
 	            int i=in.read(tmp, 0, 1024);
 	            if(i<0)break;
-	            System.out.print(new String(tmp, 0, i));
+	            result.append(new String(tmp, 0, i));
 	          }
 	          if(channel.isClosed()){
-	            System.out.println("exit-status: "+channel.getExitStatus());
+	            result.append("exit-status: "+channel.getExitStatus());
 	            break;
 	          }
 	          try{Thread.sleep(1000);}catch(Exception ee){}
 	        }
 	        channel.disconnect();
 	        session.disconnect();
-	        System.out.println("DONE");
+	        result.append("DONE");
 	    }catch(Exception e){
 	    	e.printStackTrace();
 	    }
@@ -156,11 +209,11 @@ public class ui extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField host;
     private javax.swing.JLabel hostLabel;
-    private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField password;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.JTextArea result;
+    private javax.swing.JButton runButton;
     private javax.swing.JLabel userLabel;
     private javax.swing.JTextField userName;
     // End of variables declaration//GEN-END:variables
