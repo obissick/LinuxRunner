@@ -5,7 +5,9 @@
  */
 package linuxrunner;
 
+import java.awt.Dimension;
 import static java.awt.PageAttributes.MediaType.B;
+import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -18,8 +20,13 @@ public class run {
     SwingUtilities.invokeLater(new Runnable(){
         @Override
         public void run(){
-            JFrame frame = new JFrame();
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            double width = screenSize.getWidth();
+            double height = screenSize.getHeight();
+            JFrame frame = new JFrame("Linux Runner");
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            //frame.setResizable(false);
+            
             frame.getContentPane().add(new ui());
             frame.pack();
             frame.setVisible(true);
